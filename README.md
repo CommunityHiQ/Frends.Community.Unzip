@@ -32,7 +32,7 @@ Extracts files from a zip-archive
 
 | Property             | Type                 | Description                          | Example |
 | ---------------------| ---------------------| ------------------------------------ | ----- |
-| DirectoryPath | string | Destination directory for files | c:\destination_directory\ |
+| DirectoryPath | string | Destination directory | c:\destination_directory\ |
 
 #### Options
 

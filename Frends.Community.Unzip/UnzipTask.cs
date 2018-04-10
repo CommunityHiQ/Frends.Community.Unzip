@@ -2,6 +2,7 @@
 using Frends.Tasks.Attributes;
 using System.IO;
 using Ionic.Zip;
+using System.Diagnostics;
 
 namespace Frends.Community.Unzip
 {
@@ -23,15 +24,13 @@ namespace Frends.Community.Unzip
             [CustomDisplay(DisplayOption.Tab)]Options options,
             CancellationToken cancellationToken)
         {
-            //check that source file exists
+
             if (!File.Exists(source.SourceFile))
                 throw new FileNotFoundException($"Source file {source.SourceFile} does not exist.");
 
-            //check that destination directory exist
             if (!Directory.Exists(destination.DirectoryPath) && !options.CreateDestinationDirectory)
                 throw new DirectoryNotFoundException($"Destination directory {destination.DirectoryPath} does not exist.");
 
-            //create destination directory 
             if (options.CreateDestinationDirectory)
             {
                 Directory.CreateDirectory(destination.DirectoryPath);
@@ -39,15 +38,10 @@ namespace Frends.Community.Unzip
 
             Output output = new Output();
 
-            //passed to event handler 
-            FileNameHelper fh = new FileNameHelper
-            {
-                DestinationPath = destination.DirectoryPath
-            };
-
             using (ZipFile zip = ZipFile.Read(source.SourceFile))
             {
-                zip.ExtractProgress += (sender, e) => Zip_ExtractProgress(sender, e, output, fh);
+                string path = null;
+                zip.ExtractProgress += (sender, e) => Zip_ExtractProgress(sender, e, output, path);
 
                 //if password is set
                 if (!string.IsNullOrWhiteSpace(source.Password))
@@ -66,18 +60,17 @@ namespace Frends.Community.Unzip
                         foreach (ZipEntry z in zip)
                         {
                             cancellationToken.ThrowIfCancellationRequested();
-                            //if a file exists
+
                             if (File.Exists(Path.Combine(destination.DirectoryPath, z.FileName)))
                             {
                                 //find a filename that does not exist 
                                 string FullPath = Extensions.GetNewFilename(Path.Combine(Path.GetDirectoryName(destination.DirectoryPath), z.FileName), z.FileName, cancellationToken);
-                                fh.Filename = FullPath;
+                                path = FullPath;
 
                                 using (FileStream fs = new FileStream(FullPath, FileMode.Create, FileAccess.Write))
                                 {
                                     z.Extract(fs);
                                 }
-                                fh.Filename = null;
                             }
                             else
                             {
@@ -89,27 +82,21 @@ namespace Frends.Community.Unzip
             }
             return output;
         }
-
-        private static void Zip_ExtractProgress(object sender, ExtractProgressEventArgs e, Output output, FileNameHelper fnh)
+        
+        private static void Zip_ExtractProgress(object sender, ExtractProgressEventArgs e, Output output, string fullPath)
         {
             if (e.EventType == ZipProgressEventType.Extracting_AfterExtractEntry && !e.CurrentEntry.IsDirectory)
             {
-                if (fnh.Filename == null)
+                if (e.ExtractLocation == null)
                 {
-                    //adds a filename to extracted files-list
-                    output.ExtractedFiles.Add(Path.GetFullPath(Path.Combine(fnh.DestinationPath, e.CurrentEntry.FileName)));
+                   //Path.GetFullPath changes directory separator to "\"
+                    output.ExtractedFiles.Add(Path.GetFullPath(fullPath));
                 }
                 else
                 {
-                    output.ExtractedFiles.Add(fnh.Filename);
+                    output.ExtractedFiles.Add(Path.GetFullPath(Path.Combine(e.ExtractLocation, e.CurrentEntry.FileName)));
                 }
             }
-        }
-
-        private class FileNameHelper
-        {
-            public string DestinationPath { get; set; }
-            public string Filename { get; set; }
         }
     }
 }

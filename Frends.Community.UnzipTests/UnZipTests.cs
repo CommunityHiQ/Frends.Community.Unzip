@@ -33,13 +33,14 @@ namespace Frends.Community.Unzip.Tests
             opt = new Options();
             Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\TestData\TestOut\"));
         }
-
+        
         [TearDown]
         public void TearDown()
         {
             Directory.Delete(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\TestData\TestOut"), true);
         }
-
+       
+       
         [Test]
         public void SourceFileDoesNotExist()
         {
@@ -136,13 +137,38 @@ namespace Frends.Community.Unzip.Tests
         [Test]
         public void OverwriteFiles()
         {
-            //
+           
+            sp.SourceFile = Path.Combine(inputPath, @"HiQLogos.zip");
+
+            Options opt = new Options()
+            {
+                DestinationFileExistsAction = FileExistAction.Overwrite,
+                CreateDestinationDirectory = true
+            };
+
+            dp.DirectoryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\TestData\TestOut\new_directory");
+
+            //unzip files to TestOut, so that there are existing files
+            Unzip.Output output = UnzipTask.ExtractArchive(sp, dp, opt, new CancellationToken());
+
+            //create a dictionary (filename, LastAccessTime)
+            Dictionary<string, long> files = output.ExtractedFiles.ToDictionary(x => x, x => new FileInfo(x).LastAccessTime.Ticks);
+
+            //overwrite files in TestOut
+            Unzip.Output output2 = UnzipTask.ExtractArchive(sp, dp, opt, new CancellationToken());
+
+            Assert.AreEqual(output.ExtractedFiles.Count, output2.ExtractedFiles.Count);
+
+            foreach(string s in output2.ExtractedFiles)
+            {
+                FileInfo fi = new FileInfo(s);
+                Assert.That(files.ContainsKey(fi.FullName) && files[fi.FullName]!=fi.LastAccessTime.Ticks);
+            }
         }
 
         [Test]
         public void RenameFiles()
         {
-            //test for rename-option
             sp.SourceFile = Path.Combine(inputPath, @"HiQLogos.zip");
 
             opt.DestinationFileExistsAction = FileExistAction.Rename;
@@ -160,8 +186,11 @@ namespace Frends.Community.Unzip.Tests
             foreach (string s in outputFiles)
             {
                 Assert.True(File.Exists(s));
+               
             }
+
             Assert.AreEqual(output.ExtractedFiles.Count, 7);
         }
+        
     }
 }

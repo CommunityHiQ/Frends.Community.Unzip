@@ -86,4 +86,4 @@ NOTE: Be sure to merge the latest from "upstream" before making a pull request!
 
 | Version             | Changes                 |
 | ---------------------| ---------------------|
-| 1.0.0 | Initial Frends.Community version of Unzip-task |
+| 1.0.0 | Initial Frends.Community version of the Unzip-task |

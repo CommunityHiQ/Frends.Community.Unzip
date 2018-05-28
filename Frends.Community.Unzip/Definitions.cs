@@ -1,14 +1,13 @@
-﻿using Frends.Tasks.Attributes;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace Frends.Community.Unzip
 {
 
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning disable CS1591
     public enum FileExistAction { Error, Overwrite, Rename };
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-
+#pragma warning restore CS1591 
     /// <summary>
     /// Source properties
     /// </summary>
@@ -19,7 +18,8 @@ namespace Frends.Community.Unzip
         /// Full path to the source file
         /// </summary>
         [DefaultValue(@"C:\example\file.zip")]
-        [DefaultDisplayType(DisplayType.Text)]
+        [DisplayName(@"Source file")]
+        [DisplayFormat(DataFormatString="Text")]
         public string SourceFile { get; set; }
         /// <summary>
         /// Password for the zip file
@@ -38,7 +38,8 @@ namespace Frends.Community.Unzip
         /// Destination directory
         /// </summary>
         [DefaultValue(@"C:\example")]
-        [DefaultDisplayType(DisplayType.Text)]
+        [DisplayName(@"Destination directory")]
+        [DisplayFormat(DataFormatString ="Text")]
         public string DirectoryPath { get; set; }
     }
     /// <summary>
@@ -51,11 +52,13 @@ namespace Frends.Community.Unzip
         /// Action to be taken when destination file/files exist
         /// </summary>
         [DefaultValue(FileExistAction.Error)]
+        [DisplayName(@"File exist action")]
         public FileExistAction DestinationFileExistsAction { get; set; }
         /// <summary>
         /// Create destination directory if it does not exist
         /// </summary>
         [DefaultValue(false)]
+        [DisplayName(@"Create destination directory")]
         public bool CreateDestinationDirectory { get; set; }
     }
     /// <summary>
@@ -68,9 +71,9 @@ namespace Frends.Community.Unzip
         /// </summary>
         public List<string> ExtractedFiles { get; set; }
 
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning disable CS1591
         public Output()
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning restore CS1591
         {
             ExtractedFiles = new List<string>();
         }

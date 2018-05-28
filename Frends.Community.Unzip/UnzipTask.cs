@@ -1,8 +1,8 @@
 ﻿using System.Threading;
-using Frends.Tasks.Attributes;
 using System.IO;
 using Ionic.Zip;
 using System.Diagnostics;
+using System.ComponentModel;
 
 namespace Frends.Community.Unzip
 {
@@ -19,9 +19,9 @@ namespace Frends.Community.Unzip
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>Output-object with a List of extracted files</returns>
         public static Output ExtractArchive(
-            [CustomDisplay(DisplayOption.Tab)]SourceProperties source,
-            [CustomDisplay(DisplayOption.Tab)]DestinationProperties destination,
-            [CustomDisplay(DisplayOption.Tab)]Options options,
+            [PropertyTab]SourceProperties source,
+            [PropertyTab]DestinationProperties destination,
+            [PropertyTab]Options options,
             CancellationToken cancellationToken)
         {
 

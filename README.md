@@ -11,7 +11,7 @@ FRENDS community task for extracting Zip-archives
 
 # Installing
 You can install the task via FRENDS UI Task View or you can find the nuget package from the following nuget feed
-'Insert nuget feed here'
+'https://www.myget.org/F/frends-community/api/v2'
 
 Tasks
 =====

@@ -57,6 +57,8 @@
     <None Include="TestData\TestIn\HiQLogos.zip" />
     <None Include="TestData\TestIn\HiQLogos2.zip" />
     <None Include="TestData\TestIn\HiQLogosWithPassword.zip" />
+    <None Include="TestData\TestIn\testzip.zip" />
+    <None Include="TestData\TestIn\testzip2.zip" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="TestData\TestOut\" />

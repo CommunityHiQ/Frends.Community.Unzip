@@ -137,33 +137,29 @@ namespace Frends.Community.Unzip.Tests
         [Test]
         public void OverwriteFiles()
         {
-           
-            sp.SourceFile = Path.Combine(inputPath, @"HiQLogos.zip");
-
+          
+            sp.SourceFile = Path.Combine(inputPath, @"testzip.zip");
             Options opt = new Options()
             {
                 DestinationFileExistsAction = FileExistAction.Overwrite,
                 CreateDestinationDirectory = true
             };
 
-            dp.DirectoryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\TestData\TestOut\new_directory");
-
-            //unzip files to TestOut, so that there are existing files
+            dp.DirectoryPath = Path.Combine(dp.DirectoryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\TestData\TestOut\new_directory"));
+            
+            //extract testzip.zip
             Unzip.Output output = UnzipTask.ExtractArchive(sp, dp, opt, new CancellationToken());
+            //read first line from each file
+            var lines = Directory.EnumerateFiles(dp.DirectoryPath, "*",SearchOption.AllDirectories).Select(x => File.ReadLines(x).First()).ToList();
 
-            //create a dictionary (filename, LastAccessTime)
-            Dictionary<string, long> files = output.ExtractedFiles.ToDictionary(x => x, x => new FileInfo(x).LastAccessTime.Ticks);
+            Assert.True(lines.Contains("First file") && lines.Contains("Second file") && lines.Contains("Third file"));
 
-            //overwrite files in TestOut
-            Unzip.Output output2 = UnzipTask.ExtractArchive(sp, dp, opt, new CancellationToken());
-
-            Assert.AreEqual(output.ExtractedFiles.Count, output2.ExtractedFiles.Count);
-
-            foreach(string s in output2.ExtractedFiles)
-            {
-                FileInfo fi = new FileInfo(s);
-                Assert.That(files.ContainsKey(fi.FullName) && files[fi.FullName]!=fi.LastAccessTime.Ticks);
-            }
+            sp.SourceFile = Path.Combine(inputPath, @"testzip2.zip");
+            //Extract testzip2.zip. Should overwrite existing files from previous step
+            output = UnzipTask.ExtractArchive(sp, dp, opt, new CancellationToken());
+            var lines2 = Directory.EnumerateFiles(dp.DirectoryPath, "*", SearchOption.AllDirectories).Select(x => File.ReadLines(x).First()).ToList();
+            Assert.False(lines2.Contains("First file") && lines2.Contains("Second file") && lines2.Contains("Third file"));
+            Assert.True(lines2.Contains("Fourth file") && lines2.Contains("Fifth file") && lines2.Contains("Sixth file"));
         }
 
         [Test]

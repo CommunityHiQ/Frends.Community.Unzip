@@ -18,8 +18,8 @@ namespace Frends.Community.Unzip.Tests
                                 @"folder\folder\folder\logo2(0).png", @"folder\folder\folder\folder\logo1(0).png" };
 
         //paths to TestIn and TestOut
-        string inputPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\TestData\TestIn\");
-        string outputPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\TestData\TestOut\");
+        string inputPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestData", "TestIn");
+        string outputPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestData", "TestOut");
         List<string> outputFiles;
         SourceProperties sp;
         DestinationProperties dp;
@@ -31,13 +31,13 @@ namespace Frends.Community.Unzip.Tests
             sp = new SourceProperties();
             dp = new DestinationProperties();
             opt = new Options();
-            Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\TestData\TestOut\"));
+            Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestData", "TestOut"));
         }
         
         [TearDown]
         public void TearDown()
         {
-            Directory.Delete(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\TestData\TestOut"), true);
+            Directory.Delete(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestData", "TestOut"), true);
         }
        
        
@@ -66,11 +66,10 @@ namespace Frends.Community.Unzip.Tests
         [Test]
         public void CreateDirectory()
         {
-            //create destination directory if it does not exist
             sp.SourceFile = Path.Combine(inputPath, @"HiQLogos.zip");
             opt.DestinationFileExistsAction = FileExistAction.Error;
             opt.CreateDestinationDirectory = true;
-            dp.DirectoryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\TestData\TestOut\new_directory\");
+            dp.DirectoryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestData", "TestOut", "new_directory");
 
             outputFiles = new List<string>();
             fileNames.ToList().ForEach(x => outputFiles.Add(Path.Combine(dp.DirectoryPath, x)));
@@ -86,28 +85,26 @@ namespace Frends.Community.Unzip.Tests
         [Test]
         public void ExtractWithPassword()
         {
-            //extract password protected archive
             sp.SourceFile = Path.Combine(inputPath, @"HiQLogosWithPassword.zip");
             sp.Password = "secret";
 
             opt.DestinationFileExistsAction = FileExistAction.Overwrite;
             opt.CreateDestinationDirectory = true;
 
-            dp.DirectoryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\TestData\TestOut\new_directory");
+            dp.DirectoryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestData", "TestOut", "new_directory");
 
             Output output = UnzipTask.ExtractArchive(sp, dp, opt, new System.Threading.CancellationToken());
-            Assert.True(File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\TestData\TestOut\new_directory\logo1.png")));
-            Assert.True(File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\TestData\TestOut\new_directory\logo2.png")));
+            Assert.True(File.Exists(Path.Combine(dp.DirectoryPath, "logo1.png")));
+            Assert.True(File.Exists(Path.Combine(dp.DirectoryPath, "logo2.png")));
         }
 
         [Test]
         public void PasswordError()
         {
-            //Should throw Ionic.Zip.BadPasswordException
             sp.SourceFile = Path.Combine(inputPath, @"HiQLogosWithPassword.zip");
             opt.DestinationFileExistsAction = FileExistAction.Overwrite;
             opt.CreateDestinationDirectory = true;
-            dp.DirectoryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\TestData\TestOut\new_directory");
+            dp.DirectoryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestData", "TestOut", "new_directory");
 
             Assert.That(() => UnzipTask.ExtractArchive(sp, dp, opt, new System.Threading.CancellationToken()), Throws.TypeOf<BadPasswordException>());
         }
@@ -126,9 +123,8 @@ namespace Frends.Community.Unzip.Tests
             opt.DestinationFileExistsAction = FileExistAction.Error;
             opt.CreateDestinationDirectory = true;
 
-            dp.DirectoryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\TestData\TestOut\new_directory");
+            dp.DirectoryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestData", "TestOut", "new_directory");
 
-            //unzip files to TestOut, so that there are existing files
             UnzipTask.ExtractArchive(sp, dp, opt2, new CancellationToken());
 
             Assert.That(() => UnzipTask.ExtractArchive(sp, dp, opt, new System.Threading.CancellationToken()), Throws.TypeOf<Ionic.Zip.ZipException>());
@@ -137,7 +133,6 @@ namespace Frends.Community.Unzip.Tests
         [Test]
         public void OverwriteFiles()
         {
-          
             sp.SourceFile = Path.Combine(inputPath, @"testzip.zip");
             Options opt = new Options()
             {
@@ -145,17 +140,14 @@ namespace Frends.Community.Unzip.Tests
                 CreateDestinationDirectory = true
             };
 
-            dp.DirectoryPath = Path.Combine(dp.DirectoryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\TestData\TestOut\new_directory"));
+            dp.DirectoryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestData", "TestOut", "new_directory");
             
-            //extract testzip.zip
-            Unzip.Output output = UnzipTask.ExtractArchive(sp, dp, opt, new CancellationToken());
-            //read first line from each file
-            var lines = Directory.EnumerateFiles(dp.DirectoryPath, "*",SearchOption.AllDirectories).Select(x => File.ReadLines(x).First()).ToList();
+            Output output = UnzipTask.ExtractArchive(sp, dp, opt, new CancellationToken());
+            var lines = Directory.EnumerateFiles(dp.DirectoryPath, "*", SearchOption.AllDirectories).Select(x => File.ReadLines(x).First()).ToList();
 
             Assert.True(lines.Contains("First file") && lines.Contains("Second file") && lines.Contains("Third file"));
 
             sp.SourceFile = Path.Combine(inputPath, @"testzip2.zip");
-            //Extract testzip2.zip. Should overwrite existing files from previous step
             output = UnzipTask.ExtractArchive(sp, dp, opt, new CancellationToken());
             var lines2 = Directory.EnumerateFiles(dp.DirectoryPath, "*", SearchOption.AllDirectories).Select(x => File.ReadLines(x).First()).ToList();
             Assert.False(lines2.Contains("First file") && lines2.Contains("Second file") && lines2.Contains("Third file"));
@@ -166,26 +158,33 @@ namespace Frends.Community.Unzip.Tests
         public void RenameFiles()
         {
             sp.SourceFile = Path.Combine(inputPath, @"HiQLogos.zip");
-
             opt.DestinationFileExistsAction = FileExistAction.Rename;
             opt.CreateDestinationDirectory = true;
+            dp.DirectoryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestData", "TestOut");
 
-            dp.DirectoryPath = outputPath;
-
-            //extract files to TestOut, so that there are existing files
-            UnzipTask.ExtractArchive(sp, dp, opt, new CancellationToken());
-            Output output = UnzipTask.ExtractArchive(sp, dp, opt, new CancellationToken());
-            //create filenames to test against
-            outputFiles = new List<string>();
-            renamedFilenames.ToList().ForEach(x => outputFiles.Add(Path.Combine(dp.DirectoryPath, x)));
-
-            foreach (string s in outputFiles)
+            // Create subdirectories that will be needed
+            string[] subdirs = { 
+                Path.Combine(dp.DirectoryPath, "folder"),
+                Path.Combine(dp.DirectoryPath, "folder", "folder", "folder"),
+                Path.Combine(dp.DirectoryPath, "folder", "folder", "folder", "folder")
+            };
+            foreach (var dir in subdirs)
             {
-                Assert.True(File.Exists(s));
-               
+                Directory.CreateDirectory(dir);
             }
 
-            Assert.AreEqual(output.ExtractedFiles.Count, 7);
+            // First extraction
+            UnzipTask.ExtractArchive(sp, dp, opt, new CancellationToken());
+            // Second extraction should rename files
+            Output output = UnzipTask.ExtractArchive(sp, dp, opt, new CancellationToken());
+            
+            // Verify each renamed file exists
+            foreach (string renamedFile in output.ExtractedFiles)
+            {
+                Assert.True(File.Exists(renamedFile), $"File {renamedFile} should exist");
+            }
+
+            Assert.AreEqual(7, output.ExtractedFiles.Count);
         }
         
     }

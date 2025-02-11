@@ -1,0 +1,23 @@
+{
+    "Tasks": [
+        {
+            "TaskMethod": "Frends.Community.Unzip.UnzipTask.ExtractArchive",
+            "Category": "File",
+            "Version": "2.0.0",
+            "Parameters": [
+                {
+                    "Name": "source",
+                    "Type": "Frends.Community.Unzip.SourceProperties"
+                },
+                {
+                    "Name": "destination",
+                    "Type": "Frends.Community.Unzip.DestinationProperties"
+                },
+                {
+                    "Name": "options",
+                    "Type": "Frends.Community.Unzip.Options"
+                }
+            ]
+        }
+    ]
+} 

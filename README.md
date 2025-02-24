@@ -53,23 +53,30 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 # Building
 
-Clone a copy of the repo
+Clone a copy of the repo:
 
 `git clone https://github.com/CommunityHiQ/Frends.Community.Unzip.git`
 
-Restore dependencies
+Build the project:
 
-`nuget restore frends.community.unzip`
+```bash
+dotnet restore
+dotnet build
+```
 
-Rebuild the project
+Run Tests:
 
-Run Tests with nunit3. Tests can be found under
+```bash
+dotnet test
+```
 
-`Frends.Community.Unzip.Tests\bin\Release\Frends.Community.Unzip.Tests.dll`
+Create a NuGet package:
 
-Create a nuget package
+```bash
+dotnet pack -C Release
+```
 
-`nuget pack nuspec/Frends.Community.Unzip.nuspec`
+The NuGet package will be generated in the `Frends.Community.Unzip/bin/Release` directory.
 
 # Contributing
 When contributing to this repository, please first discuss the change you wish to make via issue, email, or any other method with the owners of this repository before making a change.
@@ -88,3 +95,5 @@ NOTE: Be sure to merge the latest from "upstream" before making a pull request!
 | ---------------------| ---------------------|
 | 1.0.0 | Initial Frends.Community version of the Unzip-task |
 | 1.1.0 | Updated dotNetZip nuget to 1.20.0, if it would not have 'We found potential security vulnerabilities in your dependencies.' issue |
+| 1.2.0 | Modernized the tasks to use .NET Standard 2.0 and .NET 6.0 |
+

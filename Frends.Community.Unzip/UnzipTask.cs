@@ -61,10 +61,18 @@ namespace Frends.Community.Unzip
                         {
                             cancellationToken.ThrowIfCancellationRequested();
 
-                            if (File.Exists(Path.Combine(destination.DirectoryPath, z.FileName)))
+                            string targetPath = Path.Combine(destination.DirectoryPath, z.FileName);
+                            if (File.Exists(targetPath))
                             {
+                                // Create directory if it doesn't exist
+                                string targetDir = Path.GetDirectoryName(targetPath);
+                                if (!Directory.Exists(targetDir))
+                                {
+                                    Directory.CreateDirectory(targetDir);
+                                }
+
                                 //find a filename that does not exist 
-                                string FullPath = Extensions.GetNewFilename(Path.Combine(Path.GetDirectoryName(destination.DirectoryPath), z.FileName), z.FileName, cancellationToken);
+                                string FullPath = Extensions.GetNewFilename(targetPath, z.FileName, cancellationToken);
                                 path = FullPath;
 
                                 using (FileStream fs = new FileStream(FullPath, FileMode.Create, FileAccess.Write))
@@ -74,6 +82,12 @@ namespace Frends.Community.Unzip
                             }
                             else
                             {
+                                // Create directory if it doesn't exist
+                                string targetDir = Path.GetDirectoryName(targetPath);
+                                if (!Directory.Exists(targetDir))
+                                {
+                                    Directory.CreateDirectory(targetDir);
+                                }
                                 z.Extract(destination.DirectoryPath);
                             }
                         }
